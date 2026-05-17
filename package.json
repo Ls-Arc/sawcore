@@ -11,6 +11,8 @@
     "build:node": "tsc -b",
     "clean": "bunx tsc -b --clean",
     "clean:node": "tsc -b --clean",
+    "ci:smoke": "bun run local:smoke",
+    "ci:verify": "bun run typecheck && bun run build && bun run test && bun run local:config",
     "local:down": "docker compose -f infra/docker-compose.yml down -v --remove-orphans",
     "local:smoke": "bun test apps/web/test/docker-compose-smoke.test.ts",
     "local:up": "docker compose -f infra/docker-compose.yml up --build",

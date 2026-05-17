@@ -13,6 +13,7 @@ Sawcore is a Bun-first TypeScript monorepo for parametric cabinet design. It sta
    bun run typecheck
    bun run build
    bun test
+   bun run ci:verify
    ```
 3. Run the local stack:
    ```bash
@@ -86,9 +87,18 @@ Important rule: **preview and export consume engine output only**. They do not r
 | `bun run build` | Build the monorepo packages/apps |
 | `bun test` | Run the full test suite |
 | `bun run local:config` | Validate the Docker Compose config |
+| `bun run ci:verify` | Run the required CI gate: typecheck, build, test, config |
+| `bun run ci:smoke` | Run the manual Docker Compose smoke test |
 | `bun run local:up` | Start the local stack |
 | `bun run local:down` | Stop and clean the local stack |
 | `bun run local:smoke` | Run local stack smoke tests |
+
+## CI contract
+
+Required CI covers install, typecheck, build, test, and Docker Compose config validation through `bun run ci:verify`.
+Docker smoke stays manual for now through `bun run ci:smoke` so host flakiness does not block merges.
+
+Before branch protection or required checks are enabled, reconcile local `main` with `origin/main` first. Treat the GitHub history as authoritative only after that baseline has been compared and brought back into alignment.
 
 ## Development workflow
 
