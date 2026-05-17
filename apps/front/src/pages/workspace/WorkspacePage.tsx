@@ -1,12 +1,19 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { Card } from "../../components/ui/Card";
+import { WorkspacePreviewCard } from "../../features/workspaces/components/WorkspacePreviewCard";
+import { WorkspaceEditCard } from "../../features/workspaces/components/WorkspaceEditCard";
 import { WorkspaceHeader } from "../../features/workspaces/components/WorkspaceHeader";
+import { WorkspaceExportCard } from "../../features/workspaces/components/WorkspaceExportCard";
+import { WorkspaceDeleteCard } from "../../features/workspaces/components/WorkspaceDeleteCard";
 import { useWorkspace } from "../../features/workspaces/hooks/useWorkspace";
+import { useWorkspacePreview } from "../../features/workspaces/hooks/useWorkspacePreview";
 
 export function WorkspacePage() {
   const { id = "" } = useParams();
+  const navigate = useNavigate();
   const { data, isLoading, isError, error } = useWorkspace(id);
+  const preview = useWorkspacePreview(id);
 
   if (isLoading) {
     return <p className="text-sm text-slate-500">Cargando workspace...</p>;
@@ -27,6 +34,21 @@ export function WorkspacePage() {
   return (
     <section className="space-y-6">
       <WorkspaceHeader workspace={data} />
+      <WorkspaceExportCard workspace={data} />
+      <WorkspaceEditCard workspace={data} />
+      <WorkspacePreviewCard
+        error={preview.error}
+        isFetching={preview.isFetching}
+        isLoading={preview.isLoading}
+        preview={preview.data}
+      />
+
+      <WorkspaceDeleteCard
+        onDeleted={() => {
+          navigate("/templates", { replace: true });
+        }}
+        workspace={data}
+      />
 
       <Card className="space-y-3">
         <h3 className="text-lg font-semibold text-slate-950">Payload actual</h3>
