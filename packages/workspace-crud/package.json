@@ -1,0 +1,14 @@
+{
+  "name": "@modulewood/workspace-crud",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contracts": "./src/contracts.ts",
+    "./errors": "./src/errors.ts",
+    "./use-cases": "./src/use-cases.ts"
+  },
+  "dependencies": {
+    "@modulewood/domain": "workspace:*"
+  }
+}

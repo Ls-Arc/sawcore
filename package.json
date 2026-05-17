@@ -1,0 +1,30 @@
+{
+  "name": "sawcore",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "bunx tsc -b",
+    "build:node": "tsc -b",
+    "clean": "bunx tsc -b --clean",
+    "clean:node": "tsc -b --clean",
+    "local:down": "docker compose -f infra/docker-compose.yml down -v --remove-orphans",
+    "local:smoke": "bun test apps/web/test/docker-compose-smoke.test.ts",
+    "local:up": "docker compose -f infra/docker-compose.yml up --build",
+    "local:config": "docker compose -f infra/docker-compose.yml config",
+    "web:start": "bun apps/web/src/server.ts",
+    "typecheck": "bunx tsc -b --pretty false",
+    "typecheck:node": "tsc -b --pretty false",
+    "test": "bun run build && bun test",
+    "test:node": "npm run build:node && node --test",
+    "verify:node": "npm run typecheck:node && npm run test:node"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@11.1.2+sha512.415a1cc25974731e75455c1468371be74c5aa5fb7621b50d4056d222451609f11412f23fd602e6169f1e060466641f798597e1be961a10688836a67b16569499"
+}

@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "references": [
+    { "path": "../../packages/core-engine" },
+    { "path": "../../packages/domain" },
+    { "path": "../../packages/preview-export" },
+    { "path": "../../packages/template-starters" },
+    { "path": "../../packages/workspace-crud" }
+  ]
+}

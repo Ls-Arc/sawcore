@@ -1,0 +1,12 @@
+{
+  "name": "@modulewood/domain",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./unit": "./src/unit.ts",
+    "./dimension-input": "./src/dimension-input.ts",
+    "./cabinet-setup": "./src/cabinet-setup.ts",
+    "./workspace": "./src/workspace.ts"
+  }
+}

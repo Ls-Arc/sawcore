@@ -1,0 +1,69 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "sawcore",
+      "devDependencies": {
+        "@types/node": "^22.15.0",
+        "typescript": "^5.8.3",
+      },
+    },
+    "apps/web": {
+      "name": "@modulewood/web",
+      "dependencies": {
+        "@modulewood/core-engine": "workspace:*",
+        "@modulewood/domain": "workspace:*",
+        "@modulewood/preview-export": "workspace:*",
+        "@modulewood/template-starters": "workspace:*",
+        "@modulewood/workspace-crud": "workspace:*",
+      },
+    },
+    "packages/core-engine": {
+      "name": "@modulewood/core-engine",
+      "dependencies": {
+        "@modulewood/domain": "workspace:*",
+      },
+    },
+    "packages/domain": {
+      "name": "@modulewood/domain",
+    },
+    "packages/preview-export": {
+      "name": "@modulewood/preview-export",
+      "dependencies": {
+        "@modulewood/core-engine": "workspace:*",
+      },
+    },
+    "packages/template-starters": {
+      "name": "@modulewood/template-starters",
+      "dependencies": {
+        "@modulewood/domain": "workspace:*",
+      },
+    },
+    "packages/workspace-crud": {
+      "name": "@modulewood/workspace-crud",
+      "dependencies": {
+        "@modulewood/domain": "workspace:*",
+      },
+    },
+  },
+  "packages": {
+    "@modulewood/core-engine": ["@modulewood/core-engine@workspace:packages/core-engine"],
+
+    "@modulewood/domain": ["@modulewood/domain@workspace:packages/domain"],
+
+    "@modulewood/preview-export": ["@modulewood/preview-export@workspace:packages/preview-export"],
+
+    "@modulewood/template-starters": ["@modulewood/template-starters@workspace:packages/template-starters"],
+
+    "@modulewood/web": ["@modulewood/web@workspace:apps/web"],
+
+    "@modulewood/workspace-crud": ["@modulewood/workspace-crud@workspace:packages/workspace-crud"],
+
+    "@types/node": ["@types/node@22.19.19", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-dyh/xO2Fh5bYrfWaaqGrRQQGkNdmYw6AmaAUvYeUMNTWQtvb796ikLdmTchRmOlOiIJ1TDXfWgVx1QkUlQ6Hew=="],
+
+    "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+
+    "undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
+  }
+}

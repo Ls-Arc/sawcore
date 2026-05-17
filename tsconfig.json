@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "declaration": true,
+    "declarationMap": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@modulewood/domain": ["packages/domain/src/index.ts"],
+      "@modulewood/core-engine": ["packages/core-engine/src/index.ts"],
+      "@modulewood/workspace-crud": ["packages/workspace-crud/src/index.ts"],
+      "@modulewood/template-starters": ["packages/template-starters/src/index.ts"],
+      "@modulewood/preview-export": ["packages/preview-export/src/index.ts"]
+    }
+  },
+  "files": [],
+  "references": [
+    { "path": "packages/domain" },
+    { "path": "packages/core-engine" },
+    { "path": "packages/workspace-crud" },
+    { "path": "packages/template-starters" },
+    { "path": "packages/preview-export" },
+    { "path": "apps/web" }
+  ]
+}

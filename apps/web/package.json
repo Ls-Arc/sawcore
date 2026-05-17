@@ -1,0 +1,23 @@
+{
+  "name": "@modulewood/web",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./flow": "./src/flow.ts",
+    "./http": "./src/http.ts",
+    "./memory-workspace-repository": "./src/memory-workspace-repository.ts",
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "start": "bun src/server.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modulewood/core-engine": "workspace:*",
+    "@modulewood/domain": "workspace:*",
+    "@modulewood/preview-export": "workspace:*",
+    "@modulewood/template-starters": "workspace:*",
+    "@modulewood/workspace-crud": "workspace:*"
+  }
+}

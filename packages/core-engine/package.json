@@ -1,0 +1,14 @@
+{
+  "name": "@modulewood/core-engine",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./calculate-parts": "./src/calculate-parts.ts",
+    "./normalize-units": "./src/normalize-units.ts",
+    "./validation": "./src/validation.ts"
+  },
+  "dependencies": {
+    "@modulewood/domain": "workspace:*"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@modulewood/preview-export",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contracts": "./src/contracts.ts",
+    "./csv": "./src/csv.ts",
+    "./empty-preview": "./src/empty-preview.ts",
+    "./pdf": "./src/pdf.ts",
+    "./preview": "./src/preview.ts"
+  },
+  "dependencies": {
+    "@modulewood/core-engine": "workspace:*"
+  }
+}
