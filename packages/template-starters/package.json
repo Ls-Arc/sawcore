@@ -7,6 +7,7 @@
     "./catalog": "./src/catalog.ts"
   },
   "dependencies": {
-    "@modulewood/domain": "workspace:*"
+    "@modulewood/domain": "workspace:*",
+    "@modulewood/material-catalog": "workspace:*"
   }
 }

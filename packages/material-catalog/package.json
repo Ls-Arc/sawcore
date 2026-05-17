@@ -1,0 +1,12 @@
+{
+  "name": "@modulewood/material-catalog",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./catalog": "./src/catalog.ts"
+  },
+  "dependencies": {
+    "@modulewood/domain": "workspace:*"
+  }
+}

@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 
 import { CalculationError } from "@modulewood/core-engine";
+import { UnsupportedMaterialError } from "@modulewood/material-catalog";
 import { WorkspaceMissingError } from "@modulewood/workspace-crud";
 
 import { createWebFlow, type WebFlow } from "./flow.js";
@@ -16,6 +17,7 @@ const APPROVED_FLOW = {
   endpoints: [
     "GET /health",
     "GET /api/flow",
+    "GET /api/materials",
     "GET /api/templates",
     "POST /api/workspaces/from-template",
     "GET /api/workspaces/:id",
@@ -104,6 +106,11 @@ export function createWebServer(flow: WebFlow = createWebFlow()): Server {
         return;
       }
 
+      if (method === "GET" && path.length === 2 && path[0] === "api" && path[1] === "materials") {
+        sendJson(response, 200, { ok: true, data: flow.listMaterials() });
+        return;
+      }
+
       if (method === "GET" && path.length === 2 && path[0] === "api" && path[1] === "templates") {
         sendJson(response, 200, { ok: true, data: flow.listTemplates() });
         return;
@@ -114,12 +121,14 @@ export function createWebServer(flow: WebFlow = createWebFlow()): Server {
           workspaceId?: string;
           templateId?: string;
           workspaceName?: string;
+          selectedMaterialId?: string;
         };
 
         const workspaceInput: Parameters<WebFlow["createWorkspaceFromTemplate"]>[0] = {
           workspaceId: body.workspaceId ?? "workspace-1",
           templateId: body.templateId ?? "compact-base",
           ...(body.workspaceName !== undefined ? { workspaceName: body.workspaceName } : {}),
+          ...(body.selectedMaterialId !== undefined ? { selectedMaterialId: body.selectedMaterialId } : {}),
         };
 
         const workspace = await flow.createWorkspaceFromTemplate(workspaceInput);
@@ -195,6 +204,11 @@ export function createWebServer(flow: WebFlow = createWebFlow()): Server {
     } catch (error) {
       if (error instanceof WorkspaceMissingError) {
         sendJson(response, 404, { ok: false, error: error.message });
+        return;
+      }
+
+      if (error instanceof UnsupportedMaterialError) {
+        sendJson(response, 422, { ok: false, error: error.message });
         return;
       }
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { DEFAULT_CONSTRUCTION_RULES } from "@modulewood/domain";
 import { seedWorkspaceFromTemplate } from "@modulewood/template-starters";
 
 import {
@@ -44,26 +45,40 @@ test("workspace CRUD supports seeded workspaces and current-state updates", asyn
   const repository = createMemoryRepository();
   const seeded = seedWorkspaceFromTemplate({
     workspaceId: "workspace-1",
-    templateId: "compact-base",
+    templateId: "wall-cabinet",
   });
 
   await createWorkspace(repository, seeded);
 
   const created = await readWorkspace(repository, "workspace-1");
-  assert.equal(created.name, "Compact Base");
+  assert.equal(created.name, "Wall Cabinet");
+  assert.equal(created.selectedMaterialId, "birch-plywood-18mm");
   assert.equal(created.cabinetSetup.width.value, 80);
+  assert.equal(created.cabinetSetup.height.value, 72);
+  assert.equal(created.cabinetSetup.depth.value, 35);
+  assert.deepStrictEqual(created.cabinetSetup.constructionRules, DEFAULT_CONSTRUCTION_RULES);
 
   await updateWorkspace(repository, "workspace-1", {
-    name: "Compact Base v2",
+    name: "Wall Cabinet v2",
+    selectedMaterialId: "white-melamine-18mm",
     cabinetSetup: {
       ...created.cabinetSetup,
       width: { value: 90, unit: "cm" },
+      constructionRules: {
+        backPanelFit: "inset",
+        allowances: { backInset: { value: 4, unit: "mm" } },
+      },
     },
   });
 
   const updated = await readWorkspace(repository, "workspace-1");
-  assert.equal(updated.name, "Compact Base v2");
+  assert.equal(updated.name, "Wall Cabinet v2");
+  assert.equal(updated.selectedMaterialId, "white-melamine-18mm");
   assert.equal(updated.cabinetSetup.width.value, 90);
+  assert.deepStrictEqual(updated.cabinetSetup.constructionRules, {
+    backPanelFit: "inset",
+    allowances: { backInset: { value: 4, unit: "mm" } },
+  });
 
   await deleteWorkspace(repository, "workspace-1");
 

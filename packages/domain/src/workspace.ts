@@ -4,4 +4,5 @@ export interface Workspace {
   readonly id: string;
   readonly name: string;
   readonly cabinetSetup: CabinetSetup;
+  readonly selectedMaterialId?: string;
 }

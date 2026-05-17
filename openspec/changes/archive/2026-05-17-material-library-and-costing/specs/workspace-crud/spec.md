@@ -1,0 +1,47 @@
+# Delta for workspace-crud
+
+## MODIFIED Requirements
+
+### Requirement: Workspace lifecycle is supported
+
+The system MUST allow a workspace to be created, retrieved, updated, and deleted while preserving the full cabinet setup, any selected material, construction rules, and any cabinet state seeded from an approved starter template.
+Workspace retrieval MUST include the selected material when one exists.
+(Previously: workspaces preserved cabinet setup, construction rules, and starter-seeded state only.)
+
+#### Scenario: Create and retrieve a workspace
+
+- GIVEN a valid workspace request seeded from an approved starter template and a selected material
+- WHEN the user creates a workspace
+- THEN the workspace MUST be available for retrieval
+- AND it MUST expose its full cabinet setup and selected material
+
+#### Scenario: Delete removes the workspace
+
+- GIVEN an existing workspace
+- WHEN the user deletes it
+- THEN the workspace MUST no longer be retrievable
+
+### Requirement: Basic cabinet setup is editable
+
+The system MUST allow the workspace cabinet setup, selected material, and construction profile to be updated within v0.1 bounds.
+Updates to a starter-seeded workspace MUST preserve editable workspace state and MUST NOT alter the approved starter catalog.
+(Previously: updates preserved cabinet setup and construction profile only.)
+
+#### Scenario: Update cabinet setup and selected material
+
+- GIVEN an existing workspace with a cabinet setup, construction profile, and selected material
+- WHEN the user updates the workspace
+- THEN the saved workspace MUST reflect the new setup and selected material
+
+#### Scenario: Missing workspace is handled safely
+
+- GIVEN a workspace identifier that does not exist
+- WHEN the user reads or updates it
+- THEN the system MUST report that the workspace is unavailable
+
+#### Scenario: Unsupported rules are rejected on update
+
+- GIVEN an existing workspace and an unsupported construction rule value
+- WHEN the user updates the workspace
+- THEN the system MUST reject the update
+- AND it MUST NOT persist the unsupported rule

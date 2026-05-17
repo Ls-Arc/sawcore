@@ -39,6 +39,8 @@ export function calculateParts(input: CalculatePartsInput): CalculatePartsResult
 
   const thickness = normalized.materialThicknessMm;
   const cutAllowance = normalized.allowanceCutMm;
+  const backInsetAllowance = normalized.constructionRules.backInsetMm;
+  const backPanelFit = normalized.constructionRules.backPanelFit;
   const width = normalized.widthMm;
   const height = normalized.heightMm;
   const depth = normalized.depthMm;
@@ -47,6 +49,15 @@ export function calculateParts(input: CalculatePartsInput): CalculatePartsResult
   const sideDepth = ensurePositivePartDimension(depth, "side depth");
   const panelWidth = ensurePositivePartDimension(width - thickness * 2 - cutAllowance, "panel width");
   const panelHeight = ensurePositivePartDimension(height - cutAllowance, "panel height");
+  const backPanelWidth =
+    backPanelFit === "overlay"
+      ? ensurePositivePartDimension(width - cutAllowance, "back panel width")
+      : ensurePositivePartDimension(width - thickness * 2 - cutAllowance - backInsetAllowance * 2, "back panel width");
+  const backPanelHeight =
+    backPanelFit === "overlay"
+      ? ensurePositivePartDimension(height - cutAllowance, "back panel height")
+      : ensurePositivePartDimension(height - cutAllowance - backInsetAllowance * 2, "back panel height");
+  const backPanelAllowance = cutAllowance + (backPanelFit === "overlay" ? 0 : backInsetAllowance);
 
   const parts: PartLine[] = [
     {
@@ -89,10 +100,10 @@ export function calculateParts(input: CalculatePartsInput): CalculatePartsResult
       id: "back",
       name: "Back",
       quantity: 1,
-      lengthMm: panelWidth,
-      widthMm: panelHeight,
+      lengthMm: backPanelWidth,
+      widthMm: backPanelHeight,
       thicknessMm: thickness,
-      allowanceMm: cutAllowance,
+      allowanceMm: backPanelAllowance,
     },
   ];
 

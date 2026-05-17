@@ -20,6 +20,7 @@
       "@modulewood/core-engine": ["packages/core-engine/src/index.ts"],
       "@modulewood/workspace-crud": ["packages/workspace-crud/src/index.ts"],
       "@modulewood/template-starters": ["packages/template-starters/src/index.ts"],
+      "@modulewood/material-catalog": ["packages/material-catalog/src/index.ts"],
       "@modulewood/preview-export": ["packages/preview-export/src/index.ts"]
     }
   },
@@ -29,6 +30,7 @@
     { "path": "packages/core-engine" },
     { "path": "packages/workspace-crud" },
     { "path": "packages/template-starters" },
+    { "path": "packages/material-catalog" },
     { "path": "packages/preview-export" },
     { "path": "apps/web" }
   ]

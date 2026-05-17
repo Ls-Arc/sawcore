@@ -9,6 +9,7 @@
   "references": [
     { "path": "../../packages/core-engine" },
     { "path": "../../packages/domain" },
+    { "path": "../../packages/material-catalog" },
     { "path": "../../packages/preview-export" },
     { "path": "../../packages/template-starters" },
     { "path": "../../packages/workspace-crud" }

@@ -16,6 +16,7 @@
   "dependencies": {
     "@modulewood/core-engine": "workspace:*",
     "@modulewood/domain": "workspace:*",
+    "@modulewood/material-catalog": "workspace:*",
     "@modulewood/preview-export": "workspace:*",
     "@modulewood/template-starters": "workspace:*",
     "@modulewood/workspace-crud": "workspace:*"

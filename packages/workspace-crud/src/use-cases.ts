@@ -7,20 +7,30 @@ import type {
 } from "./contracts.js";
 import { WorkspaceMissingError } from "./errors.js";
 
+type MutableWorkspace = {
+  -readonly [Key in keyof Workspace]: Workspace[Key];
+};
+
 function cloneWorkspace(workspace: Workspace): Workspace {
-  return {
-    id: workspace.id,
-    name: workspace.name,
-    cabinetSetup: structuredClone(workspace.cabinetSetup),
-  };
+  return structuredClone(workspace);
 }
 
 function mergeWorkspace(workspace: Workspace, input: WorkspaceUpdateInput): Workspace {
-  return {
-    id: workspace.id,
-    name: input.name ?? workspace.name,
-    cabinetSetup: input.cabinetSetup ? structuredClone(input.cabinetSetup) : structuredClone(workspace.cabinetSetup),
-  };
+  const nextWorkspace = structuredClone(workspace) as MutableWorkspace;
+
+  if (input.name !== undefined) {
+    nextWorkspace.name = input.name;
+  }
+
+  if (input.cabinetSetup !== undefined) {
+    nextWorkspace.cabinetSetup = structuredClone(input.cabinetSetup);
+  }
+
+  if (input.selectedMaterialId !== undefined) {
+    nextWorkspace.selectedMaterialId = input.selectedMaterialId;
+  }
+
+  return nextWorkspace;
 }
 
 export async function createWorkspace(

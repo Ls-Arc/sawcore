@@ -1,4 +1,4 @@
-import type { CalculationOutput, PreviewModel, PreviewPartFrame } from "./contracts.js";
+import type { CalculationOutput, PreviewModel, PreviewPartFrame, RoughCostSummary } from "./contracts.js";
 
 const CANVAS_MARGIN_MM = 24;
 const ROW_GAP_MM = 12;
@@ -17,7 +17,7 @@ function layoutPartFrame(part: CalculationOutput["parts"][number], index: number
   };
 }
 
-export function buildPreviewModel(result: CalculationOutput): PreviewModel {
+export function buildPreviewModel(result: CalculationOutput, costSummary?: RoughCostSummary): PreviewModel {
   const parts = result.parts.map(layoutPartFrame);
   const widestPart = parts.reduce((maximum, part) => Math.max(maximum, part.xMm + part.displayWidthMm), CANVAS_MARGIN_MM);
   const tallestPart = parts.reduce((maximum, part) => Math.max(maximum, part.yMm + part.displayHeightMm), CANVAS_MARGIN_MM);
@@ -31,6 +31,7 @@ export function buildPreviewModel(result: CalculationOutput): PreviewModel {
       heightMm: tallestPart + CANVAS_MARGIN_MM,
     },
     parts,
+    ...(costSummary ? { costSummary } : {}),
   };
 }
 

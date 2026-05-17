@@ -128,20 +128,45 @@ if (shouldRunDockerE2E) {
       const templates = await fetch(`${baseUrl}/api/templates`);
       assert.equal(templates.status, 200);
 
+      const materials = await fetch(`${baseUrl}/api/materials`);
+      assert.equal(materials.status, 200);
+
       const createResponse = await fetch(`${baseUrl}/api/workspaces/from-template`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ workspaceId: "workspace-1", templateId: "compact-base" }),
+        body: JSON.stringify({
+          workspaceId: "workspace-1",
+          templateId: "compact-base",
+          selectedMaterialId: "birch-plywood-18mm",
+        }),
       });
 
       assert.equal(createResponse.status, 201);
+      const created = (await createResponse.json()) as { data: { selectedMaterialId?: string } };
+      assert.equal(created.data.selectedMaterialId, "birch-plywood-18mm");
+
+      const invalidCreate = await fetch(`${baseUrl}/api/workspaces/from-template`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          workspaceId: "workspace-2",
+          templateId: "compact-base",
+          selectedMaterialId: "missing-material",
+        }),
+      });
+
+      assert.equal(invalidCreate.status, 422);
 
       const preview = await fetch(`${baseUrl}/api/workspaces/workspace-1/preview`, { method: "POST" });
       assert.equal(preview.status, 200);
+      const previewJson = (await preview.json()) as { data: { costSummary?: { materialId: string } } };
+      assert.equal(previewJson.data.costSummary?.materialId, "birch-plywood-18mm");
 
       const csv = await fetch(`${baseUrl}/api/workspaces/workspace-1/export/csv`, { method: "POST" });
       assert.equal(csv.status, 200);
-      assert.match(await csv.text(), /workspace-1/);
+      const csvText = await csv.text();
+      assert.match(csvText, /workspace-1/);
+      assert.match(csvText, /roughCostSummary/);
 
       const pdf = await fetch(`${baseUrl}/api/workspaces/workspace-1/export/pdf`, { method: "POST" });
       assert.equal(pdf.status, 200);

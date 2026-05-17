@@ -4,11 +4,13 @@ export interface WorkspaceCreateInput {
   readonly id: string;
   readonly name: string;
   readonly cabinetSetup: CabinetSetup;
+  readonly selectedMaterialId?: string;
 }
 
 export interface WorkspaceUpdateInput {
   readonly name?: string;
   readonly cabinetSetup?: CabinetSetup;
+  readonly selectedMaterialId?: string;
 }
 
 export interface WorkspaceRepository {

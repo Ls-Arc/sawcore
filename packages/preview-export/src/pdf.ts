@@ -1,4 +1,4 @@
-import type { CalculationOutput, ExportArtifact } from "./contracts.js";
+import type { CalculationOutput, ExportArtifact, RoughCostSummary } from "./contracts.js";
 
 function escapePdfText(value: string): string {
   return value.replaceAll("\\", "\\\\").replaceAll("(", "\\(").replaceAll(")", "\\)");
@@ -11,6 +11,17 @@ function buildPdfLines(result: CalculationOutput): string[] {
     ...result.parts.map(
       (part) => `${part.id} | ${part.name} | qty ${part.quantity} | ${part.lengthMm}x${part.widthMm} mm`,
     ),
+  ];
+}
+
+function buildCostSummaryLines(costSummary: RoughCostSummary): string[] {
+  return [
+    "Rough cost summary (approximate)",
+    `Material: ${costSummary.materialName} (${costSummary.materialId})`,
+    `Total area: ${costSummary.totalAreaMm2} mm²`,
+    `Sheet area: ${costSummary.sheetAreaMm2} mm²`,
+    `Sheets needed: ${costSummary.estimatedSheetCount}`,
+    `Estimated cost: ${costSummary.estimatedCostCents} ${costSummary.currency}`,
   ];
 }
 
@@ -59,11 +70,14 @@ function createPdfDocument(lines: readonly string[]): Uint8Array {
   return new TextEncoder().encode(pdf);
 }
 
-export function buildPdfExport(result: CalculationOutput): ExportArtifact<Uint8Array> {
+export function buildPdfExport(result: CalculationOutput, costSummary?: RoughCostSummary): ExportArtifact<Uint8Array> {
+  const lines = [...buildPdfLines(result), ...(costSummary ? buildCostSummaryLines(costSummary) : [])];
+
   return {
     workspaceId: result.workspaceId,
     filename: `${result.workspaceId}-parts.pdf`,
     mimeType: "application/pdf",
-    body: createPdfDocument(buildPdfLines(result)),
+    body: createPdfDocument(lines),
+    ...(costSummary ? { costSummary } : {}),
   };
 }

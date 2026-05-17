@@ -1,4 +1,5 @@
-import type { CabinetSetup, Workspace } from "@modulewood/domain";
+import { DEFAULT_CONSTRUCTION_RULES, type CabinetSetup, type Workspace } from "@modulewood/domain";
+import { DEFAULT_APPROVED_MATERIAL_ID } from "@modulewood/material-catalog";
 
 export interface StarterTemplate {
   readonly id: string;
@@ -31,18 +32,20 @@ const STARTER_TEMPLATES = [
       depth: { value: 56, unit: "cm" },
       materialThickness: { value: 18, unit: "mm" },
       allowances: { cut: { value: 2, unit: "mm" } },
+      constructionRules: structuredClone(DEFAULT_CONSTRUCTION_RULES),
     },
   },
   {
-    id: "tall-pantry",
-    name: "Tall Pantry",
-    description: "Narrow tall cabinet starter for storage-heavy spaces.",
+    id: "wall-cabinet",
+    name: "Wall Cabinet",
+    description: "Shallow wall cabinet starter for common upper-run layouts.",
     cabinetSetup: {
-      width: { value: 60, unit: "cm" },
-      height: { value: 210, unit: "cm" },
-      depth: { value: 60, unit: "cm" },
+      width: { value: 80, unit: "cm" },
+      height: { value: 72, unit: "cm" },
+      depth: { value: 35, unit: "cm" },
       materialThickness: { value: 18, unit: "mm" },
       allowances: { cut: { value: 2, unit: "mm" } },
+      constructionRules: structuredClone(DEFAULT_CONSTRUCTION_RULES),
     },
   },
 ] as const satisfies readonly StarterTemplate[];
@@ -87,5 +90,6 @@ export function seedWorkspaceFromTemplate(input: SeedWorkspaceFromTemplateInput)
     id: input.workspaceId,
     name: input.workspaceName ?? template.name,
     cabinetSetup: cloneCabinetSetup(template.cabinetSetup),
+    selectedMaterialId: DEFAULT_APPROVED_MATERIAL_ID,
   };
 }

@@ -1,4 +1,5 @@
-import type { CabinetSetup, DimensionInput, Unit } from "@modulewood/domain";
+import type { BackPanelFit, CabinetSetup, ConstructionRules, DimensionInput, Unit } from "@modulewood/domain";
+import { DEFAULT_CONSTRUCTION_RULES } from "@modulewood/domain";
 
 import { CalculationError } from "./validation.js";
 
@@ -13,6 +14,13 @@ export interface NormalizedCabinetSetup {
   readonly depthMm: number;
   readonly materialThicknessMm: number;
   readonly allowanceCutMm: number;
+  readonly constructionRules: NormalizedConstructionRules;
+}
+
+export interface NormalizedConstructionRules {
+  readonly backPanelFit: BackPanelFit;
+  readonly allowanceCutMm: number;
+  readonly backInsetMm: number;
 }
 
 const UNIT_FACTORS: Record<Unit, number> = {
@@ -38,12 +46,36 @@ export function normalizeDimensionInput(input: DimensionInput, label: string): N
   return { valueMm: input.value * factor, unit: input.unit };
 }
 
+function normalizeConstructionRules(rules: ConstructionRules | undefined, allowanceCutMm: number): NormalizedConstructionRules {
+  const mergedRules = {
+    ...DEFAULT_CONSTRUCTION_RULES,
+    ...(rules ?? {}),
+    allowances: {
+      ...DEFAULT_CONSTRUCTION_RULES.allowances,
+      ...(rules?.allowances ?? {}),
+    },
+  };
+
+  return {
+    backPanelFit: mergedRules.backPanelFit ?? DEFAULT_CONSTRUCTION_RULES.backPanelFit,
+    allowanceCutMm,
+    backInsetMm: mergedRules.allowances?.backInset
+      ? normalizeDimensionInput(mergedRules.allowances.backInset, "constructionRules.allowances.backInset").valueMm
+      : 0,
+  };
+}
+
 export function normalizeCabinetSetup(setup: CabinetSetup): NormalizedCabinetSetup {
   const width = normalizeDimensionInput(setup.width, "width").valueMm;
   const height = normalizeDimensionInput(setup.height, "height").valueMm;
   const depth = normalizeDimensionInput(setup.depth, "depth").valueMm;
   const materialThickness = normalizeDimensionInput(setup.materialThickness, "materialThickness").valueMm;
-  const allowanceCutMm = setup.allowances?.cut ? normalizeDimensionInput(setup.allowances.cut, "allowances.cut").valueMm : 0;
+  const cutAllowanceInput =
+    setup.constructionRules?.allowances?.cut ??
+    setup.allowances?.cut ??
+    DEFAULT_CONSTRUCTION_RULES.allowances.cut;
+  const allowanceCutMm = normalizeDimensionInput(cutAllowanceInput, "allowances.cut").valueMm;
+  const constructionRules = normalizeConstructionRules(setup.constructionRules, allowanceCutMm);
 
   return {
     widthMm: width,
@@ -51,5 +83,6 @@ export function normalizeCabinetSetup(setup: CabinetSetup): NormalizedCabinetSet
     depthMm: depth,
     materialThicknessMm: materialThickness,
     allowanceCutMm,
+    constructionRules,
   };
 }

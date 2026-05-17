@@ -8,11 +8,13 @@ Define the v0.1 preview and export contract: a simple 2D preview plus CSV and PD
 
 ### Requirement: 2D preview reflects the current workspace
 
-The system MUST provide a simple 2D preview of the current workspace.
+The system MUST provide a simple 2D preview of the current workspace, including workspaces seeded from approved starter templates.
+The preview MUST be derived only from the current engine-calculated cabinet output.
+When a rough cost summary exists, the preview MAY surface it.
 
 #### Scenario: Preview matches current state
 
-- GIVEN a workspace with a calculated cabinet setup
+- GIVEN a workspace with a calculated cabinet setup from an approved starter template
 - WHEN the user opens the preview
 - THEN the preview MUST reflect the current workspace state
 
@@ -24,11 +26,13 @@ The system MUST provide a simple 2D preview of the current workspace.
 
 ### Requirement: CSV and PDF export are available
 
-The system MUST export the current workspace to CSV and PDF.
+The system MUST export the current workspace to CSV and PDF, including starter-seeded workspaces.
+The exported content MUST correspond to the current engine-calculated cabinet output.
+When available, the export MAY surface the rough cost summary.
 
 #### Scenario: Export succeeds for a valid workspace
 
-- GIVEN a valid current workspace state
+- GIVEN a valid current workspace state seeded from an approved starter template
 - WHEN the user exports to CSV or PDF
 - THEN the exported content MUST correspond to the current workspace
 
