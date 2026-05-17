@@ -13,6 +13,9 @@
     "clean:node": "tsc -b --clean",
     "ci:smoke": "bun run local:smoke",
     "ci:verify": "bun run typecheck && bun run build && bun run test && bun run local:config",
+    "front:dev": "bun run --cwd apps/front dev",
+    "front:build": "bun run --cwd apps/front build",
+    "front:preview": "bun run --cwd apps/front preview",
     "local:down": "docker compose -f infra/docker-compose.yml down -v --remove-orphans",
     "local:smoke": "bun test apps/web/test/docker-compose-smoke.test.ts",
     "local:up": "docker compose -f infra/docker-compose.yml up --build",
@@ -21,12 +24,12 @@
     "typecheck": "bunx tsc -b --pretty false",
     "typecheck:node": "tsc -b --pretty false",
     "test": "bun run build && bun test",
-    "test:node": "npm run build:node && node --test",
-    "verify:node": "npm run typecheck:node && npm run test:node"
+    "test:node": "bun run build:node && node --test",
+    "verify:node": "bun run typecheck:node && bun run test:node"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
     "typescript": "^5.8.3"
   },
-  "packageManager": "pnpm@11.1.2+sha512.415a1cc25974731e75455c1468371be74c5aa5fb7621b50d4056d222451609f11412f23fd602e6169f1e060466641f798597e1be961a10688836a67b16569499"
+  "packageManager": "bun@1.3.13"
 }
