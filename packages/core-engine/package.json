@@ -9,6 +9,7 @@
     "./validation": "./src/validation.ts"
   },
   "dependencies": {
-    "@modulewood/domain": "workspace:*"
+    "@modulewood/domain": "workspace:*",
+    "@modulewood/validation-fixtures": "workspace:*"
   }
 }

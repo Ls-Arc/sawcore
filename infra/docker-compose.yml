@@ -4,6 +4,7 @@ services:
     working_dir: /workspace
     volumes:
       - ..:/workspace
+      - ../.data:/workspace/.data
     environment:
       NODE_ENV: development
       PORT: 3000

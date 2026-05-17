@@ -1,0 +1,11 @@
+{
+  "name": "@modulewood/validation-fixtures",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@modulewood/domain": "workspace:*"
+  }
+}

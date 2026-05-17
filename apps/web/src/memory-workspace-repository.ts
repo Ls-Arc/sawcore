@@ -27,5 +27,8 @@ export function createMemoryWorkspaceRepository(): WorkspaceRepository {
     async delete(workspaceId) {
       return store.delete(workspaceId);
     },
+    async list() {
+      return [...store.values()].map((workspace) => structuredClone(workspace));
+    },
   };
 }

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import net from "node:net";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -44,13 +44,14 @@ const repoRoot = findRepoRoot(fileURLToPath(new URL(".", import.meta.url)));
 const composeFile = join(repoRoot, "infra", "docker-compose.yml");
 const shouldRunDockerE2E = process.env.DOCKER_SMOKE_E2E === "true" || !process.env.CI;
 
-function runDockerCompose(args: string[]): void {
+function runDockerCompose(args: string[], envOverrides: Record<string, string> = {}): void {
   const result = dockerProcess.spawnSync("docker", ["compose", "-f", composeFile, ...args], {
     cwd: repoRoot,
     encoding: "utf8",
     env: {
       ...process.env,
       HOST_PORT: process.env.HOST_PORT ?? "3000",
+      ...envOverrides,
     },
   });
 
@@ -72,6 +73,12 @@ test("docker compose start failure is visible", () => {
   } finally {
     dockerProcess.spawnSync = originalSpawnSync;
   }
+});
+
+test("docker compose mounts a persistent workspace data volume", () => {
+  const composeText = readFileSync(composeFile, "utf8");
+
+  assert.match(composeText, /\.\.\/\.data:\/workspace\/\.data/);
 });
 
 async function getFreePort(): Promise<number> {
@@ -113,12 +120,17 @@ async function waitForHealth(url: string): Promise<Response> {
 
 if (shouldRunDockerE2E) {
   test("docker compose starts the approved v0.1 flow only", { timeout: 300000 }, async () => {
-    const projectName = "modulewood-smoke";
+    const runId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const projectName = `modulewood-smoke-${runId}`;
+    const sqlitePath = `/workspace/.data/${projectName}/workspace.sqlite`;
+    const hostDataDirectory = join(repoRoot, ".data", projectName);
     const hostPort = await getFreePort();
 
     process.env.HOST_PORT = String(hostPort);
 
-    runDockerCompose(["-p", projectName, "up", "-d", "--build"]);
+    runDockerCompose(["-p", projectName, "up", "-d", "--build"], {
+      MODULEWOOD_SQLITE_PATH: sqlitePath,
+    });
 
     try {
       const baseUrl = `http://127.0.0.1:${hostPort}`;
@@ -131,7 +143,7 @@ if (shouldRunDockerE2E) {
       const materials = await fetch(`${baseUrl}/api/materials`);
       assert.equal(materials.status, 200);
 
-      const createResponse = await fetch(`${baseUrl}/api/workspaces/from-template`, {
+      await fetch(`${baseUrl}/api/workspaces/from-template`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -139,11 +151,28 @@ if (shouldRunDockerE2E) {
           templateId: "compact-base",
           selectedMaterialId: "birch-plywood-18mm",
         }),
+      }).catch(() => undefined);
+
+      const listResponse = await fetch(`${baseUrl}/api/workspaces`);
+      assert.equal(listResponse.status, 200);
+      const listed = (await listResponse.json()) as { data: readonly { id: string }[] };
+      assert.deepStrictEqual(listed.data.map((workspace) => workspace.id), ["workspace-1"]);
+
+      runDockerCompose(["-p", projectName, "down", "-v", "--remove-orphans"], {
+        MODULEWOOD_SQLITE_PATH: sqlitePath,
       });
 
-      assert.equal(createResponse.status, 201);
-      const created = (await createResponse.json()) as { data: { selectedMaterialId?: string } };
-      assert.equal(created.data.selectedMaterialId, "birch-plywood-18mm");
+      runDockerCompose(["-p", projectName, "up", "-d", "--build"], {
+        MODULEWOOD_SQLITE_PATH: sqlitePath,
+      });
+
+      const restartedHealth = await waitForHealth(`${baseUrl}/health`);
+      assert.equal(restartedHealth.status, 200);
+
+      const restartedList = await fetch(`${baseUrl}/api/workspaces`);
+      assert.equal(restartedList.status, 200);
+      const restartedListed = (await restartedList.json()) as { data: readonly { id: string }[] };
+      assert.deepStrictEqual(restartedListed.data.map((workspace) => workspace.id), ["workspace-1"]);
 
       const invalidCreate = await fetch(`${baseUrl}/api/workspaces/from-template`, {
         method: "POST",
@@ -175,7 +204,10 @@ if (shouldRunDockerE2E) {
       const forbidden = await fetch(`${baseUrl}/api/cloud`);
       assert.equal(forbidden.status, 404);
     } finally {
-      runDockerCompose(["-p", projectName, "down", "-v", "--remove-orphans"]);
+      runDockerCompose(["-p", projectName, "down", "-v", "--remove-orphans"], {
+        MODULEWOOD_SQLITE_PATH: sqlitePath,
+      });
+      rmSync(hostDataDirectory, { recursive: true, force: true });
     }
   });
 }

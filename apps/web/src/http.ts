@@ -19,6 +19,7 @@ const APPROVED_FLOW = {
     "GET /api/flow",
     "GET /api/materials",
     "GET /api/templates",
+    "GET /api/workspaces",
     "POST /api/workspaces/from-template",
     "GET /api/workspaces/:id",
     "PATCH /api/workspaces/:id",
@@ -113,6 +114,11 @@ export function createWebServer(flow: WebFlow = createWebFlow()): Server {
 
       if (method === "GET" && path.length === 2 && path[0] === "api" && path[1] === "templates") {
         sendJson(response, 200, { ok: true, data: flow.listTemplates() });
+        return;
+      }
+
+      if (method === "GET" && path.length === 2 && path[0] === "api" && path[1] === "workspaces") {
+        sendJson(response, 200, { ok: true, data: await flow.listWorkspaces() });
         return;
       }
 

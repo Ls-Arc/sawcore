@@ -11,6 +11,7 @@
     "./preview": "./src/preview.ts"
   },
   "dependencies": {
-    "@modulewood/core-engine": "workspace:*"
+    "@modulewood/core-engine": "workspace:*",
+    "@modulewood/validation-fixtures": "workspace:*"
   }
 }

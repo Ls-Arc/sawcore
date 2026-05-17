@@ -7,6 +7,7 @@ export type {
 export {
   createWorkspace,
   deleteWorkspace,
+  listWorkspaces,
   readWorkspace,
   updateWorkspace,
 } from "./use-cases.js";

@@ -3,10 +3,12 @@ import test from "node:test";
 
 import { DEFAULT_CONSTRUCTION_RULES } from "@modulewood/domain";
 import { seedWorkspaceFromTemplate } from "@modulewood/template-starters";
+import { starterSeededMaterialSelectedJourney } from "@modulewood/validation-fixtures";
 
 import {
   createWorkspace,
   deleteWorkspace,
+  listWorkspaces,
   readWorkspace,
   updateWorkspace,
   WorkspaceMissingError,
@@ -38,60 +40,104 @@ function createMemoryRepository(): WorkspaceRepository {
     async delete(workspaceId) {
       return store.delete(workspaceId);
     },
+    async list() {
+      return [...store.values()].map((workspace) => structuredClone(workspace));
+    },
   };
 }
 
 test("workspace CRUD supports seeded workspaces and current-state updates", async () => {
   const repository = createMemoryRepository();
   const seeded = seedWorkspaceFromTemplate({
-    workspaceId: "workspace-1",
-    templateId: "wall-cabinet",
+    workspaceId: starterSeededMaterialSelectedJourney.workspaceId,
+    templateId: starterSeededMaterialSelectedJourney.templateId,
   });
 
   await createWorkspace(repository, seeded);
 
-  const created = await readWorkspace(repository, "workspace-1");
-  assert.equal(created.name, "Wall Cabinet");
-  assert.equal(created.selectedMaterialId, "birch-plywood-18mm");
-  assert.equal(created.cabinetSetup.width.value, 80);
-  assert.equal(created.cabinetSetup.height.value, 72);
-  assert.equal(created.cabinetSetup.depth.value, 35);
-  assert.deepStrictEqual(created.cabinetSetup.constructionRules, DEFAULT_CONSTRUCTION_RULES);
+  const created = await readWorkspace(
+    repository,
+    starterSeededMaterialSelectedJourney.workspaceId,
+  );
+  assert.deepStrictEqual(
+    created,
+    starterSeededMaterialSelectedJourney.expectedCreatedWorkspace,
+  );
+  assert.deepStrictEqual(
+    created.cabinetSetup.constructionRules,
+    DEFAULT_CONSTRUCTION_RULES,
+  );
 
-  await updateWorkspace(repository, "workspace-1", {
-    name: "Wall Cabinet v2",
-    selectedMaterialId: "white-melamine-18mm",
-    cabinetSetup: {
-      ...created.cabinetSetup,
-      width: { value: 90, unit: "cm" },
-      constructionRules: {
-        backPanelFit: "inset",
-        allowances: { backInset: { value: 4, unit: "mm" } },
-      },
-    },
-  });
+  await updateWorkspace(
+    repository,
+    starterSeededMaterialSelectedJourney.workspaceId,
+    starterSeededMaterialSelectedJourney.updateWorkspaceInput,
+  );
 
-  const updated = await readWorkspace(repository, "workspace-1");
-  assert.equal(updated.name, "Wall Cabinet v2");
-  assert.equal(updated.selectedMaterialId, "white-melamine-18mm");
-  assert.equal(updated.cabinetSetup.width.value, 90);
-  assert.deepStrictEqual(updated.cabinetSetup.constructionRules, {
-    backPanelFit: "inset",
-    allowances: { backInset: { value: 4, unit: "mm" } },
-  });
+  const updated = await readWorkspace(
+    repository,
+    starterSeededMaterialSelectedJourney.workspaceId,
+  );
+  assert.deepStrictEqual(
+    updated,
+    starterSeededMaterialSelectedJourney.expectedUpdatedWorkspace,
+  );
 
-  await deleteWorkspace(repository, "workspace-1");
+  await deleteWorkspace(
+    repository,
+    starterSeededMaterialSelectedJourney.workspaceId,
+  );
 
-  await assert.rejects(() => readWorkspace(repository, "workspace-1"), WorkspaceMissingError);
+  await assert.rejects(
+    () =>
+      readWorkspace(
+        repository,
+        starterSeededMaterialSelectedJourney.workspaceId,
+      ),
+    WorkspaceMissingError,
+  );
 });
 
 test("workspace CRUD reports missing workspaces safely", async () => {
   const repository = createMemoryRepository();
 
-  await assert.rejects(() => readWorkspace(repository, "missing"), WorkspaceMissingError);
+  await assert.rejects(
+    () => readWorkspace(repository, "missing"),
+    WorkspaceMissingError,
+  );
   await assert.rejects(
     () => updateWorkspace(repository, "missing", { name: "does not matter" }),
     WorkspaceMissingError,
   );
-  await assert.rejects(() => deleteWorkspace(repository, "missing"), WorkspaceMissingError);
+  await assert.rejects(
+    () => deleteWorkspace(repository, "missing"),
+    WorkspaceMissingError,
+  );
+});
+
+test("workspace list returns cloned workspaces without exposing repository state", async () => {
+  const repository = createMemoryRepository();
+  const seeded = seedWorkspaceFromTemplate({
+    workspaceId: starterSeededMaterialSelectedJourney.workspaceId,
+    templateId: starterSeededMaterialSelectedJourney.templateId,
+  });
+
+  await createWorkspace(repository, seeded);
+
+  const listed = await listWorkspaces(repository);
+
+  assert.deepStrictEqual(listed, [starterSeededMaterialSelectedJourney.expectedCreatedWorkspace]);
+
+  listed[0]!.name = "mutated";
+  listed[0]!.cabinetSetup.width.value = 999;
+
+  const relisted = await listWorkspaces(repository);
+
+  assert.deepStrictEqual(relisted, [starterSeededMaterialSelectedJourney.expectedCreatedWorkspace]);
+});
+
+test("workspace list returns an empty collection when the repository has no workspaces", async () => {
+  const repository = createMemoryRepository();
+
+  await assert.deepStrictEqual(await listWorkspaces(repository), []);
 });

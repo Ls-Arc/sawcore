@@ -1,43 +1,42 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import {
+  compactBaseCase,
+  insetBackCase,
+  wallCabinetCase,
+  toStablePartFacts,
+} from "@modulewood/validation-fixtures";
+
 import { calculateParts, CalculationError } from "../src/index.js";
 
-const baseInput = {
-  workspaceId: "workspace-1",
-  cabinet: {
-    width: { value: 100, unit: "cm" },
-    height: { value: 200, unit: "cm" },
-    depth: { value: 50, unit: "cm" },
-    materialThickness: { value: 18, unit: "mm" },
-  },
-} as const;
-
 test("calculateParts is deterministic for the same valid input", () => {
-  const first = calculateParts(baseInput);
-  const second = calculateParts(baseInput);
+  const first = calculateParts({ workspaceId: compactBaseCase.workspaceId, cabinet: compactBaseCase.cabinetSetup });
+  const second = calculateParts({ workspaceId: compactBaseCase.workspaceId, cabinet: compactBaseCase.cabinetSetup });
 
   assert.deepStrictEqual(second, first);
-  assert.equal(first.allowancesApplied, true);
-  assert.equal(first.units, "mm");
-  assert.deepStrictEqual(first.parts.find((part) => part.id === "back"), {
-    id: "back",
-    name: "Back",
-    quantity: 1,
-    lengthMm: 998,
-    widthMm: 1998,
-    thicknessMm: 18,
-    allowanceMm: 2,
-  });
+  assert.equal(first.allowancesApplied, compactBaseCase.expected.allowancesApplied);
+  assert.equal(first.units, compactBaseCase.expected.units);
+  assert.deepStrictEqual(first.parts.map(toStablePartFacts), compactBaseCase.expected.parts);
+});
+
+test("calculateParts is deterministic for the wall cabinet case", () => {
+  const first = calculateParts({ workspaceId: wallCabinetCase.workspaceId, cabinet: wallCabinetCase.cabinetSetup });
+  const second = calculateParts({ workspaceId: wallCabinetCase.workspaceId, cabinet: wallCabinetCase.cabinetSetup });
+
+  assert.deepStrictEqual(second, first);
+  assert.equal(first.allowancesApplied, wallCabinetCase.expected.allowancesApplied);
+  assert.equal(first.units, wallCabinetCase.expected.units);
+  assert.deepStrictEqual(first.parts.map(toStablePartFacts), wallCabinetCase.expected.parts);
 });
 
 test("calculateParts rejects invalid dimensions", () => {
   assert.throws(
     () =>
       calculateParts({
-        ...baseInput,
+        workspaceId: compactBaseCase.workspaceId,
         cabinet: {
-          ...baseInput.cabinet,
+          ...compactBaseCase.cabinetSetup,
           width: { value: -1, unit: "cm" },
         },
       }),
@@ -49,9 +48,9 @@ test("calculateParts rejects ambiguous units", () => {
   assert.throws(
     () =>
       calculateParts({
-        ...baseInput,
+        workspaceId: compactBaseCase.workspaceId,
         cabinet: {
-          ...baseInput.cabinet,
+          ...compactBaseCase.cabinetSetup,
           depth: { value: 50 },
         },
       } as never),
@@ -60,11 +59,11 @@ test("calculateParts rejects ambiguous units", () => {
 });
 
 test("calculateParts defaults missing construction rules to overlay", () => {
-  const defaulted = calculateParts(baseInput);
+  const defaulted = calculateParts({ workspaceId: compactBaseCase.workspaceId, cabinet: compactBaseCase.cabinetSetup });
   const explicitOverlay = calculateParts({
-    ...baseInput,
+    workspaceId: compactBaseCase.workspaceId,
     cabinet: {
-      ...baseInput.cabinet,
+      ...compactBaseCase.cabinetSetup,
       allowances: { cut: { value: 2, unit: "mm" } },
       constructionRules: {
         backPanelFit: "overlay",
@@ -78,36 +77,20 @@ test("calculateParts defaults missing construction rules to overlay", () => {
 
 test("calculateParts supports inset back panels", () => {
   const result = calculateParts({
-    ...baseInput,
-    cabinet: {
-      ...baseInput.cabinet,
-      constructionRules: {
-        backPanelFit: "inset",
-        allowances: {
-          backInset: { value: 5, unit: "mm" },
-        },
-      },
-    },
+    workspaceId: insetBackCase.workspaceId,
+    cabinet: insetBackCase.cabinetSetup,
   });
 
-  assert.deepStrictEqual(result.parts.find((part) => part.id === "back"), {
-    id: "back",
-    name: "Back",
-    quantity: 1,
-    lengthMm: 952,
-    widthMm: 1988,
-    thicknessMm: 18,
-    allowanceMm: 7,
-  });
+  assert.deepStrictEqual(result.parts.map(toStablePartFacts), insetBackCase.expected.parts);
 });
 
 test("calculateParts rejects unsupported construction rule values", () => {
   assert.throws(
     () =>
       calculateParts({
-        ...baseInput,
+        workspaceId: wallCabinetCase.workspaceId,
         cabinet: {
-          ...baseInput.cabinet,
+          ...wallCabinetCase.cabinetSetup,
           constructionRules: {
             backPanelFit: "flush" as never,
           },

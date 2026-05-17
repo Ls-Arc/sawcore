@@ -22,6 +22,7 @@ import type { Workspace } from "@modulewood/domain";
 import {
   createWorkspace as createWorkspaceUseCase,
   deleteWorkspace as deleteWorkspaceUseCase,
+  listWorkspaces as listWorkspacesUseCase,
   readWorkspace as readWorkspaceUseCase,
   updateWorkspace as updateWorkspaceUseCase,
   type WorkspaceRepository,
@@ -48,6 +49,7 @@ export interface WebFlow {
   listMaterials(): ReturnType<typeof listApprovedMaterials>;
   listTemplates(): ReturnType<typeof listStarterTemplates>;
   getTemplate(templateId: string): ReturnType<typeof getStarterTemplate>;
+  listWorkspaces(): Promise<Workspace[]>;
   createWorkspaceFromTemplate(
     input: CreateWorkspaceFromTemplateInput,
   ): Promise<Workspace>;
@@ -84,6 +86,7 @@ function resolveSelectedMaterial(
 }
 
 export function createWebFlow(dependencies: WebFlowDependencies = {}): WebFlow {
+  // Memory is the explicit fallback for tests and direct callers; runtime bootstrap wires SQLite by default.
   const repository =
     dependencies.repository ?? createMemoryWorkspaceRepository();
 
@@ -91,6 +94,7 @@ export function createWebFlow(dependencies: WebFlowDependencies = {}): WebFlow {
     listMaterials: () => listApprovedMaterials(),
     listTemplates: () => listStarterTemplates(),
     getTemplate: (templateId) => getStarterTemplate(templateId),
+    listWorkspaces: () => listWorkspacesUseCase(repository),
     createWorkspaceFromTemplate: async (input) => {
       const seededWorkspace = seedWorkspaceFromTemplate(input);
       const selectedMaterial = resolveSelectedMaterial(

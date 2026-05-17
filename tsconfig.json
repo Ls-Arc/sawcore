@@ -18,6 +18,7 @@
     "paths": {
       "@modulewood/domain": ["packages/domain/src/index.ts"],
       "@modulewood/core-engine": ["packages/core-engine/src/index.ts"],
+      "@modulewood/validation-fixtures": ["packages/validation-fixtures/src/index.ts"],
       "@modulewood/workspace-crud": ["packages/workspace-crud/src/index.ts"],
       "@modulewood/template-starters": ["packages/template-starters/src/index.ts"],
       "@modulewood/material-catalog": ["packages/material-catalog/src/index.ts"],
@@ -28,6 +29,7 @@
   "references": [
     { "path": "packages/domain" },
     { "path": "packages/core-engine" },
+    { "path": "packages/validation-fixtures" },
     { "path": "packages/workspace-crud" },
     { "path": "packages/template-starters" },
     { "path": "packages/material-catalog" },

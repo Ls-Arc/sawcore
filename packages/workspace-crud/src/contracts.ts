@@ -18,4 +18,5 @@ export interface WorkspaceRepository {
   read(workspaceId: string): Promise<Workspace | null>;
   update(workspace: Workspace): Promise<Workspace | null>;
   delete(workspaceId: string): Promise<boolean>;
+  list(): Promise<Workspace[]>;
 }

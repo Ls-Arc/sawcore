@@ -40,6 +40,14 @@ export async function createWorkspace(
   return repository.create(cloneWorkspace(input));
 }
 
+export async function listWorkspaces(
+  repository: WorkspaceRepository,
+): Promise<Workspace[]> {
+  const workspaces = await repository.list();
+
+  return workspaces.map(cloneWorkspace);
+}
+
 export async function readWorkspace(
   repository: WorkspaceRepository,
   workspaceId: string,
